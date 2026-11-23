@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: foodflow-config
+  namespace: foodflow
+data:
+  NATS_URL: nats://nats:4222
+  USERS_URL: http://users-service:4000/graphql
+  RESTAURANTS_URL: http://restaurants-service:4000/graphql
+  ORDERS_URL: http://orders-service:4000/graphql
+  DELIVERY_URL: http://delivery-service:4000/graphql
+---
+# В реальной установке секрет создаётся отдельно и не хранится в git
+apiVersion: v1
+kind: Secret
+metadata:
+  name: foodflow-secrets
+  namespace: foodflow
+type: Opaque
+stringData:
+  JWT_SECRET: change-me-in-production

@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: restaurants-service
+  namespace: foodflow
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: restaurants-service }
+  template:
+    metadata:
+      labels: { app: restaurants-service }
+    spec:
+      containers:
+        - name: restaurants-service
+          image: foodflow/restaurants-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 4000
+          envFrom:
+            - configMapRef: { name: foodflow-config }
+            - secretRef: { name: foodflow-secrets }
+          env:
+            - name: SERVICE_NAME
+              value: restaurants-service
+            - name: MONGO_URI
+              value: mongodb://mongo:27017/restaurants_db
+          readinessProbe:
+            tcpSocket: { port: 4000 }
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket: { port: 4000 }
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          resources:
+            requests: { cpu: 50m, memory: 96Mi }
+            limits: { cpu: 300m, memory: 256Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: restaurants-service
+  namespace: foodflow
+spec:
+  selector: { app: restaurants-service }
+  ports:
+    - port: 4000
+      targetPort: 4000

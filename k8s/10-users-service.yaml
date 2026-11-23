@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: users-service
+  namespace: foodflow
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: users-service }
+  template:
+    metadata:
+      labels: { app: users-service }
+    spec:
+      containers:
+        - name: users-service
+          image: foodflow/users-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 4000
+          envFrom:
+            - configMapRef: { name: foodflow-config }
+            - secretRef: { name: foodflow-secrets }
+          env:
+            - name: SERVICE_NAME
+              value: users-service
+            - name: MONGO_URI
+              value: mongodb://mongo:27017/users_db
+          readinessProbe:
+            tcpSocket: { port: 4000 }
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket: { port: 4000 }
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          resources:
+            requests: { cpu: 50m, memory: 96Mi }
+            limits: { cpu: 300m, memory: 256Mi }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: users-service
+  namespace: foodflow
+spec:
+  selector: { app: users-service }
+  ports:
+    - port: 4000
+      targetPort: 4000
