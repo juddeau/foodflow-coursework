@@ -1,0 +1,10 @@
+node_modules
+dist
+.env
+run-log.txt
+test-log.txt
+
+.test-logs/
+*-log.txt
+*.log
+.DS_Store
