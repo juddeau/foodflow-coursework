@@ -1,0 +1,29 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam defaultFontSize 16
+skinparam shadowing false
+skinparam dpi 180
+skinparam monochrome true
+skinparam componentStyle uml2
+top to bottom direction
+component "Веб-клиент\nReact + nginx" as Client
+component "API Gateway\nApollo Server, JWT\nявные резолверы" as G
+together {
+ component "users-service\nвход и роли" as U
+ component "restaurants-service\nрестораны и меню" as R
+ component "orders-service\nзаказы и статусы" as O
+ component "delivery-service\nдоставка" as D
+}
+component "NATS\nброкер событий" as N
+Client ..> G : GraphQL / HTTP + JWT
+U -[hidden]right-> R
+R -[hidden]right-> O
+O -[hidden]right-> D
+G ..> U
+G ..> R
+G ..> O
+G ..> D
+O .[norank].> R : цены и доступность
+O ..> N : publish order.ready\nsubscribe delivery.status
+D ..> N : publish delivery.status\nsubscribe order.ready
+@enduml

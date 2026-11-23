@@ -1,0 +1,38 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam defaultFontSize 16
+skinparam shadowing false
+skinparam dpi 180
+skinparam monochrome true
+skinparam componentStyle uml2
+top to bottom direction
+node "ПК / смартфон" as PC <<device>> {
+ artifact "Браузер" as B
+}
+node "Kubernetes\nnamespace foodflow" as K <<executionEnvironment>> {
+ node "client (1 Pod)" as CL <<executionEnvironment>> {
+  artifact "nginx + React" as WEB
+ }
+ node "gateway (2 Pod)" as GW <<executionEnvironment>> {
+  artifact "API Gateway" as API
+ }
+ node "Deployments сервисов" as S <<executionEnvironment>> {
+  artifact "users-service (1 Pod)" as U
+  artifact "restaurants-service (1 Pod)" as R
+  artifact "orders-service (2–6 Pod, HPA)" as O
+  artifact "delivery-service (2 Pod)" as D
+ }
+ node "mongo (StatefulSet, PVC 1 Gi)" as M <<executionEnvironment>> {
+  artifact "users_db, restaurants_db\norders_db, delivery_db" as DBS
+ }
+ node "nats (Deployment)" as N <<executionEnvironment>>
+ artifact "ConfigMap и Secret" as CFG
+}
+PC -- CL : HTTP, NodePort 30080
+CL -- GW : /graphql, HTTP
+GW -- S : GraphQL / HTTP
+S -- M : MongoDB / TCP
+S -- N : события / TCP
+CFG ..> GW : <<deploy>>
+CFG ..> S : <<deploy>>
+@enduml

@@ -1,0 +1,40 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam defaultFontSize 18
+skinparam shadowing false
+skinparam monochrome true
+skinparam dpi 180
+top to bottom direction
+actor "Клиент" as C
+actor "Сотрудник ресторана" as R
+actor "Курьер" as K
+rectangle "FoodFlow" {
+ usecase "Рестораны и меню" as C1
+ usecase "Оформить заказ" as C2
+ usecase "Отследить / отменить\nзаказ" as C3
+ usecase "Рассчитать стоимость" as Cost
+ usecase "Принять / отклонить\nзаказ" as R1
+ usecase "Отметить готовность" as R2
+ usecase "Управлять меню" as R3
+ usecase "Взять доставку" as K1
+ usecase "Подтвердить получение" as K2
+ usecase "Подтвердить вручение" as K3
+ C1 -[hidden]down-> C2
+ C2 -[hidden]down-> C3
+ C3 -[hidden]down-> Cost
+ R1 -[hidden]down-> R2
+ R2 -[hidden]down-> R3
+ K1 -[hidden]down-> K2
+ K2 -[hidden]down-> K3
+}
+C -- C1
+C -- C2
+C -- C3
+R -- R1
+R -- R2
+R -- R3
+K -- K1
+K -- K2
+K -- K3
+C2 ..> Cost : <<include>>
+@enduml

@@ -1,0 +1,65 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam defaultFontSize 16
+skinparam shadowing false
+skinparam dpi 180
+skinparam monochrome true
+skinparam componentStyle uml2
+hide circle
+hide methods
+skinparam nodesep 65
+skinparam ranksep 65
+class USER {
+ _id : ObjectId
+
+ email : string {unique}
+ passwordHash : string
+ name : string
+ phone : string
+ role : enum
+}
+class RESTAURANT {
+ _id : ObjectId
+
+ ownerId : string
+ name : string
+ address : string
+ cuisine : string
+ isOpen : boolean
+}
+class MENU_ITEM {
+ _id : ObjectId
+
+ restaurantId : ObjectId
+ name : string
+ price : number
+ available : boolean
+}
+class ORDER {
+ _id : ObjectId
+
+ customerId : string
+ restaurantId : string
+ restaurantOwnerId : string
+ courierId : string [0..1]
+ items : snapshot[]
+ total : number
+ status : enum
+ statusHistory : array
+}
+class DELIVERY {
+ _id : ObjectId
+
+ orderId : string {unique}
+ courierId : string [0..1]
+ pickupAddress : string
+ dropoffAddress : string
+ status : enum
+}
+USER "1" -- "0..1" RESTAURANT : владеет
+RESTAURANT "1" -- "0..*" MENU_ITEM : содержит
+USER "1" -- "0..*" ORDER : оформляет
+RESTAURANT "1" -- "0..*" ORDER : получает
+ORDER "1" -- "0..1" DELIVERY : доставляется
+USER "0..1" -- "0..*" DELIVERY : выполняет
+@enduml

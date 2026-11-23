@@ -1,0 +1,30 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam defaultFontSize 16
+skinparam shadowing false
+skinparam dpi 180
+skinparam monochrome true
+skinparam componentStyle uml2
+autonumber
+actor "Клиент" as C
+participant "API Gateway" as G
+participant "orders-service" as O
+participant "restaurants-service" as R
+database "orders_db" as DB
+C -> G : placeOrder(input), JWT
+activate G
+G -> G : Проверить JWT
+G -> O : placeOrder(input), id и роль
+activate O
+O -> R : restaurant, menuItemsByIds
+activate R
+R --> O : ресторан, актуальные цены
+ deactivate R
+O -> O : Проверить блюда и количество\nРассчитать сумму и доставку
+O -> DB : Сохранить заказ, CREATED
+DB --> O : id заказа
+O --> G : Order
+ deactivate O
+G --> C : id, status, total
+ deactivate G
+@enduml

@@ -1,0 +1,38 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam defaultFontSize 16
+skinparam shadowing false
+skinparam dpi 180
+skinparam monochrome true
+skinparam componentStyle uml2
+left to right direction
+actor "Клиент" as C
+actor "Сотрудник\nресторана" as R
+actor "Курьер" as K
+rectangle "FoodFlow" {
+ usecase "Зарегистрироваться\nи войти" as Login
+ usecase "Просматривать\nрестораны и меню" as Browse
+ usecase "Оформить заказ" as Place
+ usecase "Рассчитать\nстоимость" as Price
+ usecase "Отследить заказ" as Track
+ usecase "Отменить заказ" as Cancel
+ usecase "Принять или\nотклонить заказ" as Accept
+ usecase "Отметить\nготовность заказа" as Ready
+ usecase "Управлять меню\nи приёмом заказов" as Menu
+ usecase "Взять доставку" as Take
+ usecase "Подтвердить получение\nи вручение заказа" as Finish
+}
+C -- Login
+R -- Login
+K -- Login
+C -- Browse
+C -- Place
+C -- Track
+C -- Cancel
+R -- Accept
+R -- Ready
+R -- Menu
+K -- Take
+K -- Finish
+Place ..> Price : <<include>>
+@enduml

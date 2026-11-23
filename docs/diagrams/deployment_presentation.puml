@@ -1,0 +1,23 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam defaultFontSize 18
+skinparam shadowing false
+skinparam monochrome true
+skinparam dpi 180
+left to right direction
+node "ПК / смартфон" as PC <<device>>
+node "Kubernetes: namespace foodflow" <<executionEnvironment>> {
+ node "client: 1 Pod\nnginx + React" as CL <<executionEnvironment>>
+ node "gateway: 2 Pod\nApollo Server" as G <<executionEnvironment>>
+ node "Сервисы" as S <<executionEnvironment>> {
+  artifact "users: 1 Pod\nrestaurants: 1 Pod\norders: 2–6 Pod (HPA)\ndelivery: 2 Pod" as A
+ }
+ node "MongoDB\nStatefulSet + PVC" as M <<executionEnvironment>>
+ node "NATS\nDeployment" as N <<executionEnvironment>>
+}
+PC -- CL : HTTP\nNodePort 30080
+CL -- G : /graphql
+G -- S : GraphQL
+S -- M : данные
+S -- N : события
+@enduml

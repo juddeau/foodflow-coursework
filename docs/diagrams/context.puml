@@ -1,0 +1,18 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam defaultFontSize 18
+skinparam shadowing false
+skinparam monochrome true
+skinparam dpi 180
+left to right direction
+actor "Клиент" as C
+actor "Сотрудник\nресторана" as R
+actor "Курьер" as K
+component "FoodFlow\nУправление заказами\nи доставкой еды" as S
+C --> S : вход, блюда, адрес
+S --> C : меню, сумма, статус
+R --> S : меню, решение, готовность
+S --> R : новые заказы
+K --> S : назначение, получение, вручение
+S --> K : задания и адреса
+@enduml

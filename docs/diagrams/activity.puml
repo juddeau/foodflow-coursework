@@ -1,0 +1,32 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam defaultFontSize 18
+skinparam shadowing false
+skinparam monochrome true
+skinparam dpi 180
+start
+:Клиент выбирает блюда\nи передаёт адрес;
+:Шлюз проверяет JWT;
+:Сервис заказов проверяет меню\nи рассчитывает сумму;
+if (Заказ допустим?) then (да)
+ :Сохранить заказ CREATED;
+else (нет)
+ :Вернуть ошибку клиенту;
+ stop
+endif
+if (Ресторан принимает заказ?) then (да)
+ :Ресторан готовит заказ:\nACCEPTED → READY;
+else (нет)
+ :Сохранить CANCELLED;
+ stop
+endif
+:Сервис заказов публикует order.ready;
+:Сервис доставки создаёт\nзадание WAITING_COURIER;
+repeat
+ :Курьер выполняет очередной этап:\nвзять / забрать / вручить;
+ :Сервис доставки атомарно меняет\nстатус и публикует delivery.status;
+ :Сервис заказов обновляет\nкурьера, статус и историю;
+repeat while (Остались этапы доставки?) is (да) not (нет)
+:Клиент получает статус DELIVERED;
+stop
+@enduml

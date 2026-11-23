@@ -1,0 +1,18 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam defaultFontSize 16
+skinparam shadowing false
+skinparam dpi 180
+skinparam monochrome true
+skinparam componentStyle uml2
+hide empty description
+[*] --> CREATED : placeOrder [role = CUSTOMER]
+CREATED --> ACCEPTED : принять [role = RESTAURANT]
+CREATED --> CANCELLED : отменить [role = CUSTOMER or RESTAURANT]
+ACCEPTED --> READY : готов [role = RESTAURANT]
+ACCEPTED --> CANCELLED : отменить [role = RESTAURANT]
+READY --> PICKED_UP : delivery.status [status = PICKED_UP]
+PICKED_UP --> DELIVERED : delivery.status [status = DELIVERED]
+DELIVERED --> [*]
+CANCELLED --> [*]
+@enduml

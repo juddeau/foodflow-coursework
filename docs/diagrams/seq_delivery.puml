@@ -1,0 +1,35 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam defaultFontSize 16
+skinparam shadowing false
+skinparam dpi 180
+skinparam monochrome true
+skinparam componentStyle uml2
+hide footbox
+skinparam maxMessageSize 170
+autonumber
+actor "Ресторан" as R
+participant "Шлюз" as G
+participant "Заказы" as O
+queue "NATS" as N
+participant "Доставка" as D
+actor "Курьер" as C
+R -> G : updateOrderStatus(READY)
+G -> O : Проверенный запрос
+O -> O : Сохранить READY
+O ->> N : order.ready
+O --> G : Order: READY
+G --> R : Результат
+N ->> D : order.ready
+D -> D : Создать задание\nWAITING_COURIER (upsert)
+loop Принять → забрать → вручить
+ C -> G : acceptDelivery /\npickUpDelivery / completeDelivery
+ G -> D : Проверенный запрос
+ D -> D : Атомарно сменить статус
+ D ->> N : delivery.status
+ D --> G : Delivery
+ G --> C : Результат
+ N ->> O : delivery.status
+ O -> O : Сохранить courierId\nи статус заказа
+end
+@enduml

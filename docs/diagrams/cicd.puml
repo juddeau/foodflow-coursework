@@ -1,0 +1,30 @@
+@startuml
+skinparam defaultFontName Arial
+skinparam defaultFontSize 16
+skinparam shadowing false
+skinparam dpi 180
+skinparam monochrome true
+skinparam componentStyle uml2
+start
+:Получить код из Git;
+fork
+ :Установить зависимости\nи собрать 4 сервиса;
+ :Выполнить модульные тесты;
+fork again
+ :Установить зависимости\nи собрать шлюз и клиент;
+end fork
+if (Все проверки успешны?) then (да)
+ :Собрать 6 Docker-образов;
+ if (Ветка main?) then (да)
+  :Опубликовать образы\nв Container Registry;
+  :Применить манифесты Kubernetes;
+  :Обновить образы Deployments;
+  :Дождаться rollout status;
+ else (нет)
+  :Завершить проверку ветки;
+ endif
+else (нет)
+ :Остановить конвейер\nбез развёртывания;
+endif
+stop
+@enduml
