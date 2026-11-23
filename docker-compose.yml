@@ -1,0 +1,90 @@
+name: food-delivery
+
+# Локальный запуск всей системы: docker compose up --build
+# Клиент: http://localhost:8080   GraphQL (Apollo Sandbox): http://localhost:4000
+
+x-service-env: &service-env
+  JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me}
+  NATS_URL: nats://nats:4222
+
+services:
+  mongo:
+    image: mongo:7
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  nats:
+    image: nats:2.10-alpine
+    command: ["-m", "8222"]
+    ports:
+      - "8222:8222" # мониторинг брокера
+
+  users-service:
+    build: ./services/users-service
+    environment:
+      <<: *service-env
+      SERVICE_NAME: users-service
+      MONGO_URI: mongodb://mongo:27017/users_db
+    depends_on:
+      mongo: { condition: service_healthy }
+
+  restaurants-service:
+    build: ./services/restaurants-service
+    environment:
+      <<: *service-env
+      SERVICE_NAME: restaurants-service
+      MONGO_URI: mongodb://mongo:27017/restaurants_db
+    depends_on:
+      mongo: { condition: service_healthy }
+
+  orders-service:
+    build: ./services/orders-service
+    environment:
+      <<: *service-env
+      SERVICE_NAME: orders-service
+      MONGO_URI: mongodb://mongo:27017/orders_db
+      RESTAURANTS_URL: http://restaurants-service:4000/graphql
+    depends_on:
+      mongo: { condition: service_healthy }
+      nats: { condition: service_started }
+
+  delivery-service:
+    build: ./services/delivery-service
+    environment:
+      <<: *service-env
+      SERVICE_NAME: delivery-service
+      MONGO_URI: mongodb://mongo:27017/delivery_db
+    depends_on:
+      mongo: { condition: service_healthy }
+      nats: { condition: service_started }
+
+  gateway:
+    build: ./gateway
+    environment:
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me}
+      USERS_URL: http://users-service:4000/graphql
+      RESTAURANTS_URL: http://restaurants-service:4000/graphql
+      ORDERS_URL: http://orders-service:4000/graphql
+      DELIVERY_URL: http://delivery-service:4000/graphql
+    ports:
+      - "4000:4000"
+    depends_on:
+      - users-service
+      - restaurants-service
+      - orders-service
+      - delivery-service
+
+  client:
+    build: ./client
+    ports:
+      - "8080:80"
+    depends_on:
+      - gateway
+
+volumes:
+  mongo-data:
