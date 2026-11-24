@@ -24,6 +24,8 @@ MVP к курсовой работе по дисциплине «Архитек�
 
 Нужен Docker Desktop.
 
+На macOS вспомогательные скрипты можно выполнять как `bash start.command`, `bash test.command` и `bash stop.command`. Если после клонирования нужен запуск двойным щелчком, сначала выполните `chmod +x start.command test.command stop.command`.
+
 ```bash
 docker compose up --build
 ```
@@ -58,7 +60,7 @@ docker compose up --build
 Включить Kubernetes в настройках Docker Desktop, затем:
 
 ```bash
-./k8s/deploy-local.sh
+bash k8s/deploy-local.sh
 ```
 
 Клиент будет на http://localhost:30080. Посмотреть поды: `kubectl -n foodflow get pods`.
@@ -102,7 +104,7 @@ JWT и вызывает обычные GraphQL API сервисов через �
 Сборка TypeScript всех шести компонентов, 7 модульных тестов и 10 проверок
 сквозного сценария и 8 дополнительных проверок API выполнены успешно на локально запущенных сервисах с MongoDB
 7.0.16 и NATS 2.10.26. Docker Compose, Kubernetes и Jenkins в этой среде не запускались.
-Проверить контейнерный запуск можно командами из раздела выше и `./test.command`.
+Проверить контейнерный запуск можно командами из раздела выше и `bash test.command`.
 
 ## Автоматическая проверка GitHub
 
